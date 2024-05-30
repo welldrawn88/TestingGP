@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,700&display=swap" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css" rel="stylesheet">
+    <style>
+        /* CSS Styles */
+        html, body {
+            height: 100%;
+            width: 100%;
+            background: url('https://img.freepik.com/free-photo/background-gradient-lights_23-2149304969.jpg') no-repeat center center fixed;
+            background-size: cover;
+            font-family: "Poppins", sans-serif;
+            font-weight: 400;
+            font-size: 0.8em;
+            color: #333;
+            margin: 0;
+            padding: 0;
+            overflow-y: auto;
+            backdrop-filter: blur(5px);
+        }
+
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            padding: 20px 0 80px 0;
+        }
+
+        .title {
+            font-size: 30px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        input {
+            font-family: "Poppins", sans-serif;
+            font-size: 1em;
+            outline: none;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 20px auto;
+            box-shadow: 0 0 10px hsla(0,0%,0%,0.1);
+            border-radius: 10px;
+            background-color: #fff;
+            padding-bottom: 20px;
+        }
+
+        .task--row {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+            border-bottom: 1px solid #eee;
+            min-height: 50px;
+        }
+
+        .task__head {
+            background: #273043;
+            color: white;
+            font-weight: bold;
+            padding: 10px 20px;
+            font-size: 16px;
+            text-align: center;
+            border-top-left-radius: 10px;
+            border-top-right-radius: 10px;
+        }
+
+        .task__footer {
+            transition: all 0.2s cubic-bezier(.7,.2,.17,1);
+            background: #1CCAD8;
+            border-bottom-left-radius: 10px;
+            border-bottom-right-radius: 10px;
+            text-align: center;
+            padding: 10px 0;
+            cursor: pointer;
+        }
+
+        .task__footer:hover {
+            background-color: #54E0EA;
+        }
+
+        .task {
+            overflow: hidden;
+            transition: all 0.2s 0.2s cubic-bezier(.7,.2,.17,1);
+            position: relative;
+            display: block;
+        }
+
+        .task__check {
+            position: absolute;
+            left: -9999px;
+            z-index: -1;
+        }
+
+        .task__field {
+            transition: background-size 0.8s 0.2s cubic-bezier(.7,.2,.17,1),
+                        background-color 0.2s cubic-bezier(.7,.2,.17,1),
+                        height 0.2s 1s cubic-bezier(.7,.2,.17,1);
+            position: relative;
+            background-color: #f8f8f8;
+            padding-left: 60px;
+            cursor: pointer;
+            flex: 1;
+        }
+
+        .task__field:hover {
+            background-color: white;
+        }
+
+        .label__checkbox {
+            display: none;
+        }
+
+        .label__check {
+            display: inline-block;
+            border-radius: 50%;
+            border: 3px solid rgba(0,0,0,0.1);
+            background: white;
+            vertical-align: middle;
+            margin-right: 10px;
+            width: 2em;
+            height: 2em;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: border .3s ease;
+            position: absolute;
+            left: 10px;
+        }
+
+        .label__check i.icon {
+            opacity: 0.2;
+            font-size: calc(0.6rem + 1vw);
+            color: transparent;
+            transition: opacity .3s .1s ease;
+            -webkit-text-stroke: 1px rgba(0,0,0,.5);
+        }
+
+        .label__checkbox:checked + .label__text .label__check {
+            animation: check .5s cubic-bezier(0.895, 0.030, 0.685, 0.220) forwards;
+        }
+
+        .label__checkbox:checked + .label__text .label__check i.icon {
+            opacity: 1;
+            transform: scale(0);
+            color: white;
+            -webkit-text-stroke: 0;
+            animation: icon .3s cubic-bezier(1.000, 0.008, 0.565, 1.650) .1s 1 forwards;
+        }
+
+        .label__field {
+            display: flex;
+            align-items: center;
+        }
+
+        .progress-container {
+            width: 100%;
+            background: #f8f8f8;
+            box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.1);
+            overflow: hidden;
+            margin-top: 20px;
+            padding: 10px;
+            text-align: center;
+            border-radius: 5px;
+        }
+
+        .progress-bar {
+            height: 20px;
+            background: #47D185;
+            width: 0;
+            transition: width 0.4s ease;
+        }
+
+        .nav-menu {
+            position: fixed;
+            top: 0;
+            right: 0;
+            background: rgba(28, 202, 216, 0.7);
+            border-radius: 10px;
+            padding: 10px;
+            margin: 20px;
+            box-shadow: 0 0 10px hsla(0, 0%, 0%, 0.1);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+        }
+
+        .nav-menu a {
+            color: white;
+            text-decoration: none;
+            margin: 0 10px;
+            font-weight: bold;
+        }
+
+        @keyframes icon {
+            from {
+                opacity: 0;
+                transform: scale(0.3);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1)
+            }
+        }
+
+        @keyframes check {
+            0% {
+                width: 2em;
+                height: 2em;
+                border-width: 3px;
+            }
+            10% {
+                width: 2em;
+                height: 2em;
+                opacity: 0.1;
+                background: rgba(0,0,0,0.2);
+                border-width: 10px;
+            }
+            12% {
+                width: 2em;
+                height: 2em;
+                opacity: 0.4;
+                background: rgba(0,0,0,0.1);
+                border-width: 0;
+            }
+            50% {
+                width: 2em;
+                height: 2em;
+                background: #00d478;
+                border: 0;
+                opacity: 0.6;
+            }
+            100% {
+                width: 2em;
+                height: 2em;
+                background: #00d478;
+                border: 0;
+                opacity: 1;
+            }
+        }
+
+        .signature-container {
+            margin: 20px 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .signature-container input {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            width: 80%;
+        }
+
+        .signature-container button {
+            padding: 10px 20px;
+            border: none;
+            background: #1CCAD8;
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-family: "Poppins", sans-serif;
+        }
+
+        .signature-container button:hover {
+            background: #54E0EA;
+        }
+
+        .thank-you {
+            font-size: 24px;
+            font-weight: 700;
+            color: #273043;
+            text-align: center;
+            margin-top: 50px;
+        }
+
+        #lottie-container {
+            display: none;
+            margin-top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
+
+        #lottie {
+            width: 300px;
+            height: 300px;
+        }
+    </style>
+    <title>Quality Assurance Checklist - GP LX</title>
+</head>
+<body>
+    <div class="nav-menu">
+        <a href="#section1">Where to Start</a>
+        <a href="#section2">Knowing Your Scope</a>
+        <a href="#section3">Timeliness</a>
+        <a href="#section4">Delivery</a>
+        <a href="#section5">Quality</a>
+        <a href="#section6">Warranty and Support</a>
+        <a href="#section7">Development Checklist</a>
+    </div>
+    <div class="title">Quality Assurance Checklist - GPLX</div>
+    <div class="container" id="section1">
+        <div class="task__head">Where to Start</div>
+        <div id="checklist1">
+            <div class="task--row">
+                <input type="checkbox" id="task-1-1" class="task__check label__checkbox">
+                <label for="task-1-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    When a project arrives at GPLX, identify the portion of work for the in-house team and contractors.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-1-2" class="task__check label__checkbox">
+                <label for="task-1-2" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Ensure capabilities and appropriate scaling by calling on contractor assistance.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section2">
+        <div class="task__head">Knowing Your Scope</div>
+        <div id="checklist2">
+            <div class="task--row">
+                <input type="checkbox" id="task-2-1" class="task__check label__checkbox">
+                <label for="task-2-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Review detailed brief from GPLX outlining relevant inclusions and responsibilities.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-2-2" class="task__check label__checkbox">
+                <label for="task-2-2" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Request clarification if responsibilities are unclear to ensure agreement on deliverables and standards.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section3">
+        <div class="task__head">Timeliness</div>
+        <div id="checklist3">
+            <div class="task--row">
+                <input type="checkbox" id="task-3-1" class="task__check label__checkbox">
+                <label for="task-3-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Help meet realistic deadlines or communicate early if they are at risk.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-3-2" class="task__check label__checkbox">
+                <label for="task-3-2" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Keep shared project plans up-to-date and communicate regularly with the team.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-3-3" class="task__check label__checkbox">
+                <label for="task-3-3" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Set up regular meetings to stay updated on complex projects.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section4">
+        <div class="task__head">Delivery</div>
+        <div id="checklist4">
+            <div class="task--row">
+                <input type="checkbox" id="task-4-1" class="task__check label__checkbox">
+                <label for="task-4-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Record expectations for each delivery and create checklists or examples.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section5">
+        <div class="task__head">Quality</div>
+        <div id="checklist5">
+            <div class="task--row">
+                <input type="checkbox" id="task-5-1" class="task__check label__checkbox">
+                <label for="task-5-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Apply strict quality control and mirror efforts before delivering products to GPLX.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-5-2" class="task__check label__checkbox">
+                <label for="task-5-2" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Update and resubmit work when quality issues are identified.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section6">
+        <div class="task__head">Warranty and Support</div>
+        <div id="checklist6">
+            <div class="task--row">
+                <input type="checkbox" id="task-6-1" class="task__check label__checkbox">
+                <label for="task-6-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Provide limited support period after final product delivery.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="container" id="section7">
+        <div class="task__head">Development Checklist</div>
+        <div id="checklist7">
+            <div class="task--row">
+                <input type="checkbox" id="task-7-1" class="task__check label__checkbox">
+                <label for="task-7-1" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Read and understood the brief.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-2" class="task__check label__checkbox">
+                <label for="task-7-2" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Outlined a project plan and rough estimates for each phase.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-3" class="task__check label__checkbox">
+                <label for="task-7-3" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Outlined any queries or risks before the project commences.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-4" class="task__check label__checkbox">
+                <label for="task-7-4" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Worked from the design provided and added value in animation development.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-5" class="task__check label__checkbox">
+                <label for="task-7-5" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Published review link for internal sign-off with mini menu.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-6" class="task__check label__checkbox">
+                <label for="task-7-6" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Fixed changes from internal review.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-7" class="task__check label__checkbox">
+                <label for="task-7-7" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Republished for client review with mini menu - alpha.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-8" class="task__check label__checkbox">
+                <label for="task-7-8" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Fixed changes from client review - provided dates or queries as soon as possible.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-9" class="task__check label__checkbox">
+                <label for="task-7-9" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Organized transcripts and voice-over for review.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-10" class="task__check label__checkbox">
+                <label for="task-7-10" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Integrated voice-over.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-11" class="task__check label__checkbox">
+                <label for="task-7-11" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Updated any dates or concerns.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-12" class="task__check label__checkbox">
+                <label for="task-7-12" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    Republished with previous comments - Gold.
+                </label>
+            </div>
+            <div class="task--row">
+                <input type="checkbox" id="task-7-13" class="task__check label__checkbox">
+                <label for="task-7-13" class="task__field label__text">
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    All of these have been completed and understood.
+                </label>
+            </div>
+        </div>
+    </div>
+    <div class="signature-container">
+        <input type="text" id="signature" placeholder="Enter your name to confirm">
+        <button onclick="sendEmail()">Confirm and Send Email</button>
+    </div>
+    <div class="thank-you">Thank you for checking our guide and following the standards.</div>
+    <div class="progress-container">
+        <div class="progress-bar" id="progress-bar"></div>
+        <div id="progress-text">0% complete</div>
+    </div>
+    <div id="lottie-container">
+        <div id="lottie"></div>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
+    <script>
+        // JavaScript for interactivity
+        const tasks1 = [
+            'When a project arrives at GPLX, identify the portion of work for the in-house team and contractors.',
+            'Ensure capabilities and appropriate scaling by calling on contractor assistance.'
+        ];
+
+        const tasks2 = [
+            'Review detailed brief from GPLX outlining relevant inclusions and responsibilities.',
+            'Request clarification if responsibilities are unclear to ensure agreement on deliverables and standards.'
+        ];
+
+        const tasks3 = [
+            'Help meet realistic deadlines or communicate early if they are at risk.',
+            'Keep shared project plans up-to-date and communicate regularly with the team.',
+            'Set up regular meetings to stay updated on complex projects.'
+        ];
+
+        const tasks4 = [
+            'Record expectations for each delivery and create checklists or examples.'
+        ];
+
+        const tasks5 = [
+            'Apply strict quality control and mirror efforts before delivering products to GPLX.',
+            'Update and resubmit work when quality issues are identified.'
+        ];
+
+        const tasks6 = [
+            'Provide limited support period after final product delivery.'
+        ];
+
+        const tasks7 = [
+            'Read and understood the brief.',
+            'Outlined a project plan and rough estimates for each phase.',
+            'Outlined any queries or risks before the project commences.',
+            'Worked from the design provided and added value in animation development.',
+            'Published review link for internal sign-off with mini menu.',
+            'Fixed changes from internal review.',
+            'Republished for client review with mini menu - alpha.',
+            'Fixed changes from client review - provided dates or queries as soon as possible.',
+            'Organized transcripts and voice-over for review.',
+            'Integrated voice-over.',
+            'Updated any dates or concerns.',
+            'Republished with previous comments - Gold.',
+            'All of these have been completed and understood.'
+        ];
+
+        const checklistContainers = [
+            document.getElementById('checklist1'),
+            document.getElementById('checklist2'),
+            document.getElementById('checklist3'),
+            document.getElementById('checklist4'),
+            document.getElementById('checklist5'),
+            document.getElementById('checklist6'),
+            document.getElementById('checklist7')
+        ];
+
+        const taskLists = [tasks1, tasks2, tasks3, tasks4, tasks5, tasks6, tasks7];
+        const progressBar = document.getElementById('progress-bar');
+        const progressText = document.getElementById('progress-text');
+
+        taskLists.forEach((tasks, index) => {
+            const checklistContainer = checklistContainers[index];
+            tasks.forEach((task, taskIndex) => {
+                const taskRow = document.createElement('div');
+                taskRow.className = 'task--row';
+
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = `task-${index}-${taskIndex}`;
+                checkbox.className = 'task__check label__checkbox';
+
+                const label = document.createElement('label');
+                label.htmlFor = `task-${index}-${taskIndex}`;
+                label.className = 'task__field label__text';
+                label.innerHTML = `
+                    <div class="label__check"><i class="fas fa-check icon"></i></div>
+                    ${task}
+                `;
+
+                taskRow.appendChild(checkbox);
+                taskRow.appendChild(label);
+                checklistContainer.appendChild(taskRow);
+            });
+        });
+
+        document.querySelectorAll('.task__footer').forEach((footer, index) => {
+            footer.addEventListener('click', () => {
+                const taskText = prompt('Enter new task:');
+                if (taskText) {
+                    const taskRow = document.createElement('div');
+                    taskRow.className = 'task--row';
+
+                    const checkbox = document.createElement('input');
+                    checkbox.type = 'checkbox';
+                    checkbox.className = 'task__check label__checkbox';
+
+                    const label = document.createElement('label');
+                    label.className = 'task__field label__text';
+                    label.innerHTML = `
+                        <div class="label__check"><i class="fas fa-check icon"></i></div>
+                        ${taskText}
+                    `;
+
+                    taskRow.appendChild(checkbox);
+                    taskRow.appendChild(label);
+                    checklistContainers[index].appendChild(taskRow);
+                    updateProgress();
+                }
+            });
+        });
+
+        document.querySelectorAll('.task__check').forEach(checkbox => {
+            checkbox.addEventListener('change', updateProgress);
+        });
+
+        function updateProgress() {
+            const totalTasks = document.querySelectorAll('.task__check').length;
+            const completedTasks = document.querySelectorAll('.task__check:checked').length;
+            const percentage = (completedTasks / totalTasks) * 100;
+            progressBar.style.width = `${percentage}%`;
+            progressText.textContent = `${Math.round(percentage)}% complete`;
+
+            if (completedTasks === totalTasks) {
+                document.getElementById('lottie-container').style.display = 'flex';
+                lottie.play();
+            }
+        }
+
+        function sendEmail() {
+            const signature = document.getElementById('signature').value;
+            if (signature.trim() === '') {
+                alert('Please enter your name to confirm.');
+                return;
+            }
+
+            const email = 'kterry@gpstrategies.com';
+            const subject = 'Quality Assurance Checklist Confirmation';
+            const body = `The checklist has been completed and confirmed by: ${signature}`;
+            const mailtoLink = `mailto:${email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+
+            window.location.href = mailtoLink;
+        }
+
+        const lottie = lottie.loadAnimation({
+            container: document.getElementById('lottie'), 
+            renderer: 'svg',
+            loop: false,
+            autoplay: false,
+            path: 'https://assets9.lottiefiles.com/packages/lf20_q5pk6p1k.json'
+        });
+    </script>
+</body>
+</html>
